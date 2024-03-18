@@ -61,7 +61,7 @@
 # position of each line avoiding the distorsion
 
 from ..utils.py3 import zip
-
+from .zoom import scrolled, ctrlpressed, ctrlreleased
 class Widget(object):
     """
     Abstract base class for GUI neutral widgets
@@ -175,11 +175,17 @@ class MultiCursor(Widget):
         self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
                                                   self.onmove)
         self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
+        self._ctrlpressed = self.canvas.mpl_connect('key_press_event', ctrlpressed)
+        self._ctrlreleased = self.canvas.mpl_connect('key_release_event', ctrlreleased)
+        self._scrolled = self.canvas.mpl_connect('scroll_event', scrolled)
 
     def disconnect(self):
         """disconnect events"""
         self.canvas.mpl_disconnect(self._cidmotion)
         self.canvas.mpl_disconnect(self._ciddraw)
+        self.canvas.mpl_disconnect(self._ctrlpressed)
+        self.canvas.mpl_disconnect(self._ctrlreleased)
+        self.canvas.mpl_disconnect(self._scrolled)
 
     def clear(self, event):
         """clear the cursor"""
@@ -300,11 +306,17 @@ class MultiCursor2(Widget):
         self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
                                                   self.onmove)
         self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
+        self._ctrlpressed = self.canvas.mpl_connect('key_press_event', ctrlpressed)
+        self._ctrlreleased = self.canvas.mpl_connect('key_release_event', ctrlreleased)
+        self._scrolled = self.canvas.mpl_connect('scroll_event', scrolled)
 
     def disconnect(self):
         """disconnect events"""
         self.canvas.mpl_disconnect(self._cidmotion)
         self.canvas.mpl_disconnect(self._ciddraw)
+        self.canvas.mpl_disconnect(self._ctrlpressed)
+        self.canvas.mpl_disconnect(self._ctrlreleased)
+        self.canvas.mpl_disconnect(self._scrolled)
 
     def clear(self, event):
         """clear the cursor"""
