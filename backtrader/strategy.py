@@ -289,6 +289,24 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             self.prenext_open()
 
+    def prenext_close(self):
+        pass
+
+    def nextstart_close(self):
+        self.next_close()
+
+    def next_close(self):
+        pass
+
+    def _oncepost_close(self):
+        minperstatus = self._minperstatus
+        if minperstatus < 0:
+            self.next_close()
+        elif minperstatus == 0:
+            self.nextstart_close()  # only called for the 1st value
+        else:
+            self.prenext_close()
+            
     def _oncepost(self, dt):
         for indicator in self._lineiterators[LineIterator.IndType]:
             if len(indicator._clock) > len(indicator):
@@ -342,6 +360,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.nextstart_open()  # only called for the 1st value
         else:
             self.prenext_open()
+
+    def _next_close(self):
+        minperstatus = self._minperstatus
+        if minperstatus < 0:
+            self.next_close()
+        elif minperstatus == 0:
+            self.nextstart_close()  # only called for the 1st value
+        else:
+            self.prenext_close()
 
     def _next(self):
         super(Strategy, self)._next()

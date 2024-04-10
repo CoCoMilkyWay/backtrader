@@ -289,7 +289,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('oldsync', False),
         ('tz', None),
         ('cheat_on_open', False),
+        ('cheat_on_close', False),
         ('broker_coo', True),
+        ('broker_coc', True),
         ('quicknotify', False),
     )
 
@@ -1179,9 +1181,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             store.start()
 
         if self.p.cheat_on_open and self.p.broker_coo:
-            # try to activate in broker
-            if hasattr(self._broker, 'set_coo'):
+            if hasattr(self._broker, 'set_coo'): # try to activate in broker
                 self._broker.set_coo(True)
+
+        if self.p.cheat_on_close and self.p.broker_coc:
+            if hasattr(self._broker, 'set_coc'): # try to activate in broker
+                self._broker.set_coc(True)
 
         if self._fhistory is not None:
             self._broker.set_fund_history(self._fhistory)
@@ -1624,6 +1629,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
                         strat._next_open()
                         if self._event_stop:  # stop if requested
                             return
+                if self.p.cheat_on_close:
+                    for strat in runstrats:
+                        strat._next_close()
+                        if self._event_stop:  # stop if requested
+                            return
 
             self._brokernotify()
             if self._event_stop:  # stop if requested
@@ -1687,6 +1697,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if self.p.cheat_on_open:
                 for strat in runstrats:
                     strat._oncepost_open()
+                    if self._event_stop:  # stop if requested
+                        return
+
+            if self.p.cheat_on_close:
+                for strat in runstrats:
+                    strat._oncepost_close()
                     if self._event_stop:  # stop if requested
                         return
 
