@@ -21,24 +21,32 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-# The modules below should/must define __all__ with the objects wishes
-# or prepend an "_" (underscore) to private classes/variables
+from collections import OrderedDict
 
-from .annualreturn import *
-from .drawdown import *
-from .timereturn import *
-from .sharpe import *
-from .tradeanalyzer import *
-from .sqn import *
-from .leverage import *
-from .positions import *
-from .portfolio_value import *
-from .transactions import *
-from .pyfolio import *
-from .returns import *
-from .vwr import *
+from backtrader.utils.py3 import range
+from backtrader import Analyzer
 
-from .logreturnsrolling import *
 
-from .calmar import *
-from .periodstats import *
+class Portfolio_Value(Analyzer):
+    def stop(self):
+        index_1st = len(self.data) - 1
+        self.portfolio_value = OrderedDict()
+        self.daily_return = OrderedDict()
+        last_value = self.strategy.stats.broker.value[-index_1st]
+        for i in range(index_1st, -1, -1):
+            dt = self.data.datetime.date(-i)
+            # Must have stats.broker
+            current_value = self.strategy.stats.broker.value[-i]
+            self.portfolio_value[dt] = current_value
+            self.daily_return[dt] = current_value/last_value
+            last_value = current_value
+        
+        # instance = self.datas[0]
+        # for attribute in dir(instance):
+        #   if callable(getattr(instance, attribute)):
+        #       print(attribute)
+        #   else:
+        #       print(attribute)
+
+    def get_analysis(self):
+        return self.portfolio_value, self.daily_return
